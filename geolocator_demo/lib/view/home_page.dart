@@ -50,6 +50,11 @@ class _HomePage extends State<HomePage> {
         locationViewModel.onAddPositionToList(position);
         locationViewModel.calculateDistanceMoved();
         locationViewModel.getLastKnownLocation();
+        //move camera on map to new location
+        mapController?.animateCamera(CameraUpdate.newCameraPosition(
+            CameraPosition(
+                target: LatLng(position.latitude, position.longitude),
+                zoom: 15.0)));
       } else {
         Fluttertoast.showToast(
             msg: "Position is NULL",
@@ -82,8 +87,8 @@ class _HomePage extends State<HomePage> {
     _extractMapInfo();
 
     mapController!.getTelemetryEnabled().then((isEnabled) => setState(() {
-      _telemetryEnabled = isEnabled;
-    }));
+          _telemetryEnabled = isEnabled;
+        }));
   }
 
   void _onMapChanged() {
@@ -102,107 +107,181 @@ class _HomePage extends State<HomePage> {
   Widget build(BuildContext context) {
     locationViewModel = Provider.of<LocationViewModel>(context, listen: true);
     // checkLocationEnable();
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Geolocator Demo"),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: ElevatedButton(
-                      onPressed: () {
-                        startRecord();
-                      },
-                      child: Text('Start record')),
-                ),
-                Padding(padding: EdgeInsets.only(left: 8)),
-                Center(
-                  child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: Colors.grey),
-                      onPressed: () {
-                        print("click pause");
-                        pauseRecord();
-                      },
-                      child: Text('Pause')),
-                ),
-                Padding(padding: EdgeInsets.only(left: 8)),
-                Center(
-                  child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: Colors.green),
-                      onPressed: () {
-                        print("click resume");
-                        resumeRecord();
-                      },
-                      child: Text('Resume')),
-                ),
-                Padding(padding: EdgeInsets.only(left: 8)),
-                Center(
-                  child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: Colors.red),
-                      onPressed: () {
-                        print("click stop");
-                        stopRecord();
-                      },
-                      child: Text('Stop')),
-                ),
-              ],
+    return SafeArea(
+      child: Scaffold(
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  locationViewModel.locationList.isNotEmpty
+                      ? Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 300,
+                          child: MapboxMap(
+                            accessToken: accessToken,
+                            onMapCreated: onMapCreated,
+                            // styleString: style,
+                            myLocationEnabled: true,
+                            initialCameraPosition: CameraPosition(
+                                target: LatLng(
+                                    locationViewModel
+                                        .locationList.last.latitude,
+                                    locationViewModel
+                                        .locationList.last.longitude),
+                                zoom: 15.0),
+                            myLocationRenderMode: MyLocationRenderMode.COMPASS,
+                          ),
+                        )
+                      : Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 300,
+                          child: MapboxMap(
+                            accessToken: accessToken,
+                            onMapCreated: onMapCreated,
+                            // styleString: style,
+                            initialCameraPosition: initialCameraPosition,
+                            myLocationEnabled: true,
+                            myLocationRenderMode: MyLocationRenderMode.COMPASS,
+                          ),
+                        ),
+                ],
+              ),
             ),
-          ),
-          locationViewModel.locationList.isNotEmpty
-              ? Text(
-                  "Current position:lat:${locationViewModel.locationList.last.latitude}, lon:${locationViewModel.locationList.last.longitude}")
-              : Text("Current position:Nothing to show"),
-          locationViewModel.lastKnownLocation != null
-              ? Text(
-                  "Last knonw location:lat:${locationViewModel.lastKnownLocation?.latitude}, lon:${locationViewModel.lastKnownLocation?.longitude}")
-              : Text("Last knonw location:Nothing to show"),
-          locationViewModel.locationList.isNotEmpty
-              ? Text(
-                  "List location length:${locationViewModel.locationList.length}")
-              : Text("List location length:0"),
-          Text("Velocity:${locationViewModel.velocity} km/h"),
-          Text("Distance:${locationViewModel.distanceMoved} m"),
-          Text("Number of steps:${locationViewModel.steps}"),
-          Text("Status:${locationViewModel.status}"),
-          locationViewModel.locationList.isNotEmpty
-              ? Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 400,
-                  child: MapboxMap(
-                    accessToken: accessToken,
-                    onMapCreated: onMapCreated,
-                    // styleString: style,
-                    myLocationEnabled: true,
-                    initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                            locationViewModel.locationList.last.latitude,
-                            locationViewModel.locationList.last.longitude),
-                        zoom: 15.0),
-                    myLocationRenderMode : MyLocationRenderMode.COMPASS,
+            Container(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(padding: EdgeInsets.only(top: 16)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                          flex: 3,
+                          child: Center(
+                              child: Text(
+                            "${locationViewModel.velocity}",
+                            style: TextStyle(color: Colors.black, fontSize: 20),
+                          ))),
+                      Expanded(
+                          flex: 3,
+                          child: Center(
+                              child: Text("${locationViewModel.distanceMoved}",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 20)))),
+                    ],
                   ),
-                )
-              : Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 400,
-                  child: MapboxMap(
-                    accessToken: accessToken,
-                    onMapCreated: onMapCreated,
-                    // styleString: style,
-                    initialCameraPosition: initialCameraPosition,
-                    myLocationEnabled: true,
-                    myLocationRenderMode : MyLocationRenderMode.COMPASS,
+                  Row(
+                    children: [
+                      Expanded(
+                          flex: 3,
+                          child: Center(child: Text("Velocity(km/h)"))),
+                      Expanded(
+                          flex: 3, child: Center(child: Text("Distance(m)")))
+                    ],
                   ),
-                ),
-        ],
+                  Padding(padding: EdgeInsets.only(top: 16)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                          flex: 3,
+                          child: Center(
+                              child: Text(
+                            "${locationViewModel.steps}",
+                            style: TextStyle(color: Colors.black, fontSize: 20),
+                          ))),
+                      Expanded(
+                          flex: 3,
+                          child: Center(
+                              child: Text("${locationViewModel.status}",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 20)))),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(flex: 3, child: Center(child: Text("Steps"))),
+                      Expanded(flex: 3, child: Center(child: Text("Status")))
+                    ],
+                  ),
+                  Padding(padding: EdgeInsets.only(top: 16)),
+                  locationViewModel.locationList.isNotEmpty
+                      ? Text(
+                          "Current position: lat:${locationViewModel.locationList.last.latitude}, lon:${locationViewModel.locationList.last.longitude}")
+                      : Text("Current position: Unknown"),
+                  locationViewModel.lastKnownLocation != null
+                      ? Text(
+                          "Last known location: lat:${locationViewModel.lastKnownLocation?.latitude}, lon:${locationViewModel.lastKnownLocation?.longitude}")
+                      : Text("Last knonw location: Unknown"),
+                  locationViewModel.locationList.isNotEmpty
+                      ? Text(
+                          "List location length:${locationViewModel.locationList.length}")
+                      : Text("List location length:0"),
+                  Padding(padding: EdgeInsets.only(top: 16)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: ElevatedButton(
+                            onPressed: () {
+                              startRecord();
+                            },
+                            child: Text('Start record')),
+                      ),
+                      Padding(padding: EdgeInsets.only(left: 8)),
+                      Center(
+                        child: ElevatedButton(
+                            style:
+                                ElevatedButton.styleFrom(primary: Colors.grey),
+                            onPressed: () {
+                              print("click pause");
+                              pauseRecord();
+                            },
+                            child: Text('Pause')),
+                      ),
+                      Padding(padding: EdgeInsets.only(left: 8)),
+                      Center(
+                        child: ElevatedButton(
+                            style:
+                            ElevatedButton.styleFrom(primary: Colors.green),
+                            onPressed: () {
+                              print("click resume");
+                              resumeRecord();
+                            },
+                            child: Text('Resume')),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: ElevatedButton(
+                            style:
+                            ElevatedButton.styleFrom(primary: Colors.red),
+                            onPressed: () {
+                              print("click stop");
+                              stopRecord();
+                            },
+                            child: Text('Stop')),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
 }
-
