@@ -109,6 +109,7 @@ class LocationViewModel extends BaseViewModel {
       velocity = distance / NumberConst.updatePositionTime;
       //Doi tu m/s => Km/h;
       velocity = velocity * 3.6;
+      print("velocity:$velocity");
       notifyListeners();
     }
   }

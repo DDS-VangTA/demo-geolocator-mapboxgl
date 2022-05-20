@@ -49,6 +49,7 @@ class _HomePage extends State<HomePage> {
       if (position != null) {
         locationViewModel.onAddPositionToList(position);
         locationViewModel.calculateDistanceMoved();
+        locationViewModel.calculateVelocity();
         locationViewModel.getLastKnownLocation();
         //move camera on map to new location
         mapController?.animateCamera(CameraUpdate.newCameraPosition(
@@ -135,6 +136,7 @@ class _HomePage extends State<HomePage> {
                                         .locationList.last.longitude),
                                 zoom: 15.0),
                             myLocationRenderMode: MyLocationRenderMode.COMPASS,
+                            trackCameraPosition: true,
                           ),
                         )
                       : Container(
@@ -147,6 +149,7 @@ class _HomePage extends State<HomePage> {
                             initialCameraPosition: initialCameraPosition,
                             myLocationEnabled: true,
                             myLocationRenderMode: MyLocationRenderMode.COMPASS,
+                            trackCameraPosition: true,
                           ),
                         ),
                 ],
