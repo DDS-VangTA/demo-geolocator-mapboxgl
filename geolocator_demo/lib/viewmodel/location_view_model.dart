@@ -121,13 +121,17 @@ class LocationViewModel extends BaseViewModel {
 
   void onStepCount(StepCount event) {
     print("step count event:$event");
-    steps = event.steps.toString();
+    steps = 0.toString();
+    if (event.timeStamp.hour == DateTime.now().hour && event.timeStamp.day == DateTime.now().day) {
+      steps = event.steps.toString();
+    }
     notifyListeners();
   }
 
   void onPedestrianStatusChanged(PedestrianStatus event) {
     print("PedestrianStatus event:$event");
     status = event.status;
+    DateTime timeStamp = event.timeStamp;
     notifyListeners();
   }
 

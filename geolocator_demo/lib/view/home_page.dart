@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geolocator_demo/view/steps_counter_demo.dart';
 import 'package:geolocator_demo/viewmodel/location_view_model.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:provider/provider.dart';
@@ -60,6 +61,7 @@ class _HomePage extends State<HomePage> {
             CameraPosition(
                 target: LatLng(position.latitude, position.longitude),
                 zoom: 15.0)));
+        onDrawNewLinesOnMap();
       } else {
         Fluttertoast.showToast(
             msg: "Position is NULL",
@@ -88,34 +90,35 @@ class _HomePage extends State<HomePage> {
 
   void onMapCreated(MapboxMapController controller) {
     mapController = controller;
-    List<LatLng> points = [];
+
+    // List<LatLng> points = [];
     //draw polyline with position moved
     // for (var position in locationViewModel.locationList) {
     //   points.add(LatLng(position.latitude, position.longitude));
 
     //fake data to draw
-    points.add(LatLng(20.984002597614563, 105.79126096843653)); //So 10 Tran phu
-    points.add(LatLng(20.983009606350265, 105.79080279506958)); //Circle-K
-    points.add(LatLng(20.98205795306445, 105.78946705504819)); //Hoang ha mobile
-    points.add(LatLng(20.98182254313985, 105.78925784268469)); //Laforce
-    points.add(LatLng(20.98029487411198, 105.78746076270735)); //ATM Teckcombank
-    points.add(
-        LatLng(20.978085987334936, 105.78476782486356)); //Xuong cafe Ha dong
-    points.add(LatLng(20.977499950656256, 105.78397925540837)); //Ellipse Tower
-    points.add(LatLng(20.975140754184093, 105.78103955438436)); //NCBBank
-    points.add(LatLng(20.974204077715363, 105.78153844520841)); //ATM-BIDV
-    points.add(
-        LatLng(20.97334016845801, 105.7828781293542)); //Hanoi Culture Center
-    points.add(
-        LatLng(20.973987105620083, 105.78641217897905)); //San bong Van quan
-    mapController?.addLine(
-      LineOptions(
-          geometry: points,
-          lineColor: "#ff0000",
-          lineWidth: 5.0,
-          lineOpacity: 0.8,
-          draggable: true),
-    );
+    // points.add(LatLng(20.984002597614563, 105.79126096843653)); //So 10 Tran phu
+    // points.add(LatLng(20.983009606350265, 105.79080279506958)); //Circle-K
+    // points.add(LatLng(20.98205795306445, 105.78946705504819)); //Hoang ha mobile
+    // points.add(LatLng(20.98182254313985, 105.78925784268469)); //Laforce
+    // points.add(LatLng(20.98029487411198, 105.78746076270735)); //ATM Teckcombank
+    // points.add(
+    //     LatLng(20.978085987334936, 105.78476782486356)); //Xuong cafe Ha dong
+    // points.add(LatLng(20.977499950656256, 105.78397925540837)); //Ellipse Tower
+    // points.add(LatLng(20.975140754184093, 105.78103955438436)); //NCBBank
+    // points.add(LatLng(20.974204077715363, 105.78153844520841)); //ATM-BIDV
+    // points.add(
+    //     LatLng(20.97334016845801, 105.7828781293542)); //Hanoi Culture Center
+    // points.add(
+    //     LatLng(20.973987105620083, 105.78641217897905)); //San bong Van quan
+    // mapController?.addLine(
+    //   LineOptions(
+    //       geometry: points,
+    //       lineColor: "#ff0000",
+    //       lineWidth: 5.0,
+    //       lineOpacity: 0.8,
+    //       draggable: true),
+    // );
     mapController!.addListener(_onMapChanged);
     _extractMapInfo();
 
@@ -127,6 +130,24 @@ class _HomePage extends State<HomePage> {
   void _onMapChanged() {
     setState(() {
       _extractMapInfo();
+    });
+  }
+
+  void onDrawNewLinesOnMap() {
+    print("on draw new lines");
+    setState(() {
+      List<LatLng> points = [];
+      for (var position in locationViewModel.locationList) {
+        points.add(LatLng(position.latitude, position.longitude));
+      }
+      mapController?.addLine(
+        LineOptions(
+            geometry: points,
+            lineColor: "#ff0000",
+            lineWidth: 5.0,
+            lineOpacity: 0.8,
+            draggable: true),
+      );
     });
   }
 
@@ -343,7 +364,7 @@ class _HomePage extends State<HomePage> {
                             child: Text('Stop')),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             )
